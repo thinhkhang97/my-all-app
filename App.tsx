@@ -5,6 +5,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
 import { GestureHandler } from "./src/lessons/GestureHandler";
+import { Transition } from "./src/lessons/Transition";
 
 export default function App() {
 	const [selectedImage, setSelectedImage] = React.useState(null);
@@ -44,7 +45,7 @@ export default function App() {
 		);
 	}
 
-	return <GestureHandler />;
+	return <Transition />;
 }
 
 const styles = StyleSheet.create({
