@@ -6,6 +6,7 @@ import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
 import { GestureHandler } from "./src/lessons/GestureHandler";
 import { Transition } from "./src/lessons/Transition";
+import { CircleSlider } from "./src/lessons/CircleSlider";
 
 export default function App() {
 	const [selectedImage, setSelectedImage] = React.useState(null);
@@ -45,7 +46,7 @@ export default function App() {
 		);
 	}
 
-	return <Transition />;
+	return <CircleSlider />;
 }
 
 const styles = StyleSheet.create({
