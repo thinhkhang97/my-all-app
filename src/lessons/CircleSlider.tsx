@@ -40,7 +40,7 @@ export const CircleSlider: React.FC<Props> = () => {
 						cy={r}
 						r={radius}
 						strokeWidth={strokeWidth}
-						stroke={"blue"}
+						stroke={"#C4DDFF"}
 					/>
 					<CircleProgress radius={radius} alpha={alpha} />
 				</Svg>
@@ -71,8 +71,9 @@ const CircleProgress: React.FC<CircleProgressProps> = ({ radius, alpha }) => {
 			cy={r}
 			r={radius}
 			strokeWidth={strokeWidth}
-			stroke={"green"}
+			stroke={"#7FB5FF"}
 			strokeDasharray={[circleLength]}
+			strokeLinecap="round"
 		/>
 	);
 };
@@ -160,6 +161,6 @@ const styles = StyleSheet.create({
 		width: cursorWidth,
 		height: cursorWidth,
 		borderRadius: cursorWidth / 2,
-		backgroundColor: "red",
+		backgroundColor: "#001D6E",
 	},
 });
