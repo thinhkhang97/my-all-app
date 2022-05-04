@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import { PanGestureHandler } from "react-native-gesture-handler";
 import Animated, {
@@ -8,8 +8,9 @@ import Animated, {
 	useSharedValue,
 } from "react-native-reanimated";
 import { clamp } from "react-native-redash";
-import Svg, { Circle } from "react-native-svg";
-import { point2angle, polar2point } from "../utils/coordinate";
+import Svg, { Circle, Path } from "react-native-svg";
+import { colors } from "../assets/colors";
+import { PI, point2angle, polar2point } from "../utils/coordinate";
 
 type Props = {};
 
@@ -17,60 +18,32 @@ const { width } = Dimensions.get("window");
 const size = width / 2 - 24;
 const strokeWidth = 40;
 const radius = size - strokeWidth / 2;
-const PI = Math.PI;
-
-const center: Point = {
+const centerCircle: Point = {
 	x: size,
 	y: size,
 };
 
-export const CircleSlider: React.FC<Props> = () => {
-	const alpha = useSharedValue(PI / 4);
+const startAngle = PI / 2;
+
+export const CircleSliderWithArc: React.FC<Props> = () => {
+	const alpha = useSharedValue((2 * PI) / 3);
+
 	return (
 		<View style={styles.container}>
-			<View style={styles.content}>
+			<View style={styles.contentContainer}>
 				<Svg style={StyleSheet.absoluteFill}>
 					<Circle
-						cx={center.x}
-						cy={center.y}
+						cx={centerCircle.x}
+						cy={centerCircle.y}
 						r={radius}
-						stroke="#C4DDFF"
 						strokeWidth={strokeWidth}
+						stroke={colors.blue1}
 					/>
-					<Slider alpha={alpha} />
+					<ArcSlider center={centerCircle} radius={radius} alpha={alpha} />
 				</Svg>
-				<Cursor circleCenter={center} alpha={alpha} radius={radius} />
+				<Cursor circleCenter={centerCircle} radius={radius} alpha={alpha} />
 			</View>
 		</View>
-	);
-};
-
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-
-type SliderProps = {
-	alpha: Animated.SharedValue<number>;
-};
-
-const Slider: React.FC<SliderProps> = ({ alpha }) => {
-	const length = 2 * PI * radius;
-
-	const animatedProps = useAnimatedProps(() => {
-		return {
-			strokeDashoffset: alpha.value * radius - length,
-		};
-	});
-
-	return (
-		<AnimatedCircle
-			animatedProps={animatedProps}
-			cx={center.x}
-			cy={center.y}
-			r={radius}
-			stroke={"#7FB5FF"}
-			strokeDasharray={[length]}
-			strokeWidth={strokeWidth}
-			strokeLinecap="round"
-		/>
 	);
 };
 
@@ -87,15 +60,7 @@ const Cursor: React.FC<CursorProps> = ({ circleCenter, radius, alpha }) => {
 		},
 		onActive: (event, context) => {
 			const x = event.translationX + context.offset.x;
-			const _y = event.translationY + context.offset.y;
-			let y = _y;
-			if (x < center.x) {
-				y = _y;
-			} else if (alpha.value < PI) {
-				y = clamp(_y, 0, center.y - 0.01);
-			} else {
-				y = clamp(_y, center.y + 0.01, center.y + radius);
-			}
+			const y = event.translationY + context.offset.y;
 			alpha.value = point2angle(circleCenter, radius, { x, y });
 		},
 	});
@@ -117,13 +82,52 @@ const Cursor: React.FC<CursorProps> = ({ circleCenter, radius, alpha }) => {
 	);
 };
 
+const calculateArcPath = (
+	center: Point,
+	radius: number,
+	startAngle: number,
+	endAngle: number
+) => {
+	"worklet";
+	const startPoint = polar2point(center, radius, startAngle);
+	const endPoint = polar2point(center, radius, endAngle);
+	const isLargeArc = startPoint.x < endPoint.x ? 1 : 0;
+
+	return `M ${startPoint.x} ${startPoint.y} A ${radius} ${radius} 0 ${isLargeArc} 0 ${endPoint.x} ${endPoint.y}`;
+};
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+type ArcSliderProps = {
+	center: Point;
+	radius: number;
+	alpha: Animated.SharedValue<number>;
+};
+
+const ArcSlider: React.FC<ArcSliderProps> = ({ center, radius, alpha }) => {
+	const animatedProps = useAnimatedProps(() => {
+		return {
+			d: calculateArcPath(center, radius, startAngle, alpha.value),
+		};
+	});
+	return (
+		<AnimatedPath
+			animatedProps={animatedProps}
+			fill="transparent"
+			strokeWidth={strokeWidth}
+			stroke={colors.blue2}
+			strokeLinecap="round"
+		/>
+	);
+};
+
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
 	},
-	content: {
+	contentContainer: {
 		width: size * 2,
 		height: size * 2,
 	},

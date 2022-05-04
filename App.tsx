@@ -1,6 +1,6 @@
 import React from "react";
-import { CircleSlider } from "./src/lessons/CircleSlider2";
+import { CircleSliderWithArc } from "./src/lessons/CircleSliderWithArc";
 
 export default function App() {
-	return <CircleSlider />;
+	return <CircleSliderWithArc />;
 }
