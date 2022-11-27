@@ -1,6 +1,6 @@
 import React from "react";
-import { CircleSliderWithArc } from "./src/lessons/CircleSliderWithArc";
+import {GestureBar} from "./src/lessons/GestureBar";
 
-export default function App() {
-	return <CircleSliderWithArc />;
+export default function App() {     
+	return <GestureBar/>;
 }
